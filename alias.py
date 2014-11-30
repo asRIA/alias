@@ -1,5 +1,6 @@
 import argparse
 import os
+import sys
 import textwrap
 
 handlers = dict()
@@ -22,34 +23,35 @@ def parse_args():
     parser = argparse.ArgumentParser(prog='Alias',
                                      formatter_class=argparse.RawDescriptionHelpFormatter,
                                      description=textwrap.dedent("""\
-                                        Dynamic alias creator for system Windows.
+Dynamic alias creator for system Windows.
 
-                                        Features:
-                                            - execute program in fork, or in current command line
-                                            - custom static invoke arguments
+Features:
+    - execute program in fork, or in current command line
+    - custom static invoke arguments
 
-                                        Requirements:
-                                            - python
-                                            - folder with script in system PATH
+Requirements:
+    - python
+    - folder with script in system PATH
 
-                                        EXAMPLES:
+EXAMPLES:
 
-                                        1) Register this script as new alias with name 'alias':
-                                            python {script} add alias python {script}
+1) Register this script as new alias with name 'alias':
+    python {script} add alias python {script}
 
-                                        2) Register notepad with alias 'n':
-                                            python {script} add n notepad --fork
+2) Register notepad with alias 'n':
+python {script} add n notepad --fork
 
-                                            or if you already registered this script as an 'alias'
-                                            alias add n notepad --fork
+    If you already registered this script as an 'alias' you can use:
+alias add n notepad --fork
 
-                                            Now in any place you can just type:
-                                                n text.txt
-                                            And it will work!
+    Now in any place you can just type:
+n text.txt
 
-                                            Please note that --fork is important in this case.
-                                            It will allow to invoke notepad and do not block console.
-                                            In most cases this is useful for GUI applications.
+    And it will work!
+
+    Please note that --fork is important in this case.
+    It will allow to invoke notepad and do not block console.
+    In most cases this is useful for GUI applications.
                                      """.format(script=script_file)),
                                      epilog="More info at http://github.com/asRIA/alias")
 
@@ -84,7 +86,6 @@ def exists_alias(script_name):
 
 def get_script_name(alias):
     return os.path.join(script_dir, alias + ".bat")
-
 
 def handle_add(options):
     alias = options["alias"][0]
