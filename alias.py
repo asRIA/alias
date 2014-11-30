@@ -1,9 +1,13 @@
 import argparse
 import os
+import textwrap
 
 handlers = dict()
 script_file = os.path.realpath(__file__)
+
 script_dir = os.path.dirname(script_file)
+drive_letter_index = script_dir.find(":")
+script_dir = script_dir[:drive_letter_index].upper() + script_dir[drive_letter_index:]
 
 
 def init_map():
@@ -16,7 +20,37 @@ def init_map():
 
 def parse_args():
     parser = argparse.ArgumentParser(prog='Alias',
-                                     description="Dynamic alias creator for system windows",
+                                     formatter_class=argparse.RawDescriptionHelpFormatter,
+                                     description=textwrap.dedent("""\
+                                        Dynamic alias creator for system Windows.
+
+                                        Features:
+                                            - execute program in fork, or in current command line
+                                            - custom static invoke arguments
+
+                                        Requirements:
+                                            - python
+                                            - folder with script in system PATH
+
+                                        EXAMPLES:
+
+                                        1) Register this script as new alias with name 'alias':
+                                            python {script} add alias python {script}
+
+                                        2) Register notepad with alias 'n':
+                                            python {script} add n notepad --fork
+
+                                            or if you already registered this script as an 'alias'
+                                            alias add n notepad --fork
+
+                                            Now in any place you can just type:
+                                                n text.txt
+                                            And it will work!
+
+                                            Please note that --fork is important in this case.
+                                            It will allow to invoke notepad and do not block console.
+                                            In most cases this is useful for GUI applications.
+                                     """.format(script=script_file)),
                                      epilog="More info at http://github.com/asRIA/alias")
 
     subparsers = parser.add_subparsers(dest='command')
@@ -127,16 +161,26 @@ def handle_rem(options):
     print("'%s' has been removed" % alias)
     return 0
 
+
+def check_integration():
+    paths = os.environ["PATH"].split(";")
+    script_dir_formatted = script_dir
+    if script_dir_formatted not in paths:
+        print("Aliases dir is not registered in system PATH, please modify user env variables by adding:")
+        print(script_dir_formatted)
+
 if __name__ == '__main__':
-    errcode = 1
+
     init_map()
     args = parse_args()
+    check_integration()
 
-    print(args)
     if args["command"] in handlers:
         errcode = handlers[args["command"]](args)
     else:
         print('Missing command, please run with -h for help')
+        errcode = 1
+
     exit(errcode)
 
 
