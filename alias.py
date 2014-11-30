@@ -5,6 +5,7 @@ handlers = dict()
 script_file = os.path.realpath(__file__)
 script_dir = os.path.dirname(script_file)
 
+
 def init_map():
     handlers["add"] = handle_add
     handlers["list"] = handle_list
@@ -16,25 +17,29 @@ def init_map():
 def parse_args():
     parser = argparse.ArgumentParser(prog='Alias',
                                      description="Dynamic alias creator for system windows",
-                                     epilog="moar info at http://github.com/asRIA/alias")
+                                     epilog="More info at http://github.com/asRIA/alias")
 
     subparsers = parser.add_subparsers(dest='command')
 
-    subparsers.add_parser('list', help='')
+    subparsers.add_parser('list', help='List current registered aliases list')
 
-    parser_rem = subparsers.add_parser('rem', help='')
-    parser_rem.add_argument('alias', nargs=1, help='')
+    parser_rem = subparsers.add_parser('rem', help='Remove alias with given name')
+    parser_rem.add_argument('alias', nargs=1, help='Alias name')
 
-    parser_del = subparsers.add_parser('del', help='')
-    parser_del.add_argument('alias', nargs=1, help='')
+    parser_del = subparsers.add_parser('del', help='Remove alias with given name')
+    parser_del.add_argument('alias', nargs=1, help='Alias name')
 
-    parser_get = subparsers.add_parser('get', help='')
+    parser_get = subparsers.add_parser('get', help='Print definition for alias')
     parser_get.add_argument('alias', nargs=1, help='')
 
-    parser_add = subparsers.add_parser('add', help='')
-    parser_add.add_argument('alias', nargs=1, help='')
-    parser_add.add_argument('path', nargs=1, help='')
-    parser_add.add_argument('args', nargs="*", help='')
+    parser_add = subparsers.add_parser('add', help='Add new alias')
+    parser_add.add_argument('alias', nargs=1, help='Alias name')
+    parser_add.add_argument('path', nargs=1, help='Path to executable file')
+    parser_add.add_argument('args', nargs="*", help='Custom executable arguments')
+    parser_add.add_argument('--fork',
+                            action='store_true',
+                            help="Run alias in fork of session (Useful for GUI applications).")
+    parser_add.add_argument('--force', action='store_true', help='Override alias if exists')
 
     return vars(parser.parse_args())
 
@@ -51,24 +56,30 @@ def handle_add(options):
     alias = options["alias"][0]
     path = options["path"][0]
     args = options["args"]
+    fork_mode = options["fork"]
     alias_filename = get_script_name(alias)
 
-    if exists_alias(alias_filename):
+    if not options["force"] and exists_alias(alias_filename):
         print("Alias '%s' already exists." % alias)
         return 1
 
-    content = "@echo off\n"
-    content += "call "
-    content += '"%s" ' % path
+    content_header = "@echo off\n"
+    content_args = ""
+    if fork_mode:
+        content_command_template = "start "" {path}{args} %*"
+    else:
+        content_command_template = "call {path}{args} %*"
+
     for arg in args:
-        content += '"%s" ' % arg
-    content += '%* '
+        content_args += " {arg}".format(arg=arg)
+
+    content = content_header + content_command_template.format(path=path, args=content_args)
 
     alias_file = open(alias_filename, "w")
     alias_file.write(content)
     alias_file.close()
 
-    print("'%s' has been added" % alias)
+    print("'{alias}' has been added in {mode} mode".format(alias=alias, mode="fork" if fork_mode else "normal"))
 
 
 def handle_list(options):
@@ -83,7 +94,7 @@ def handle_list(options):
             extension = file[dot_index+1:]
             extension = extension.lower()
             if extension == "bat":
-                aliases_count+=1
+                aliases_count += 1
                 aliases += "- " + file_name + "\n"
     if aliases_count > 0:
         print("Found %d registered aliases:" % aliases_count)
@@ -116,7 +127,6 @@ def handle_rem(options):
     print("'%s' has been removed" % alias)
     return 0
 
-
 if __name__ == '__main__':
     errcode = 1
     init_map()
@@ -126,7 +136,7 @@ if __name__ == '__main__':
     if args["command"] in handlers:
         errcode = handlers[args["command"]](args)
     else:
-        print('nope')
+        print('Missing command, please run with -h for help')
     exit(errcode)
 
 
