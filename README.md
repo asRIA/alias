@@ -5,8 +5,8 @@ Dynamic alias creator for system Windows.
 - custom static invoke arguments
 
 ##Alternatives:
--DOSKEY: This doesn't work outside command line
--Shortcuts (*.lnk): doesn't work for CMD 
+- DOSKEY: This doesn't work outside command line
+- Shortcuts (*.lnk): doesn't work for CMD 
 
 ##Requirements:
 - python
