@@ -87,9 +87,15 @@ def exists_alias(script_name):
 def get_script_name(alias):
     return os.path.join(script_dir, alias + ".bat")
 
+def wrap_path(path):
+    if path.find(" ") >= 0:
+        path = "\"" + path + "\""
+    return path
+
 def handle_add(options):
     alias = options["alias"][0]
-    path = options["path"][0]
+    path = wrap_path(options["path"][0])
+
     args = options["args"]
     fork_mode = options["fork"]
     alias_filename = get_script_name(alias)
@@ -106,6 +112,7 @@ def handle_add(options):
         content_command_template = "call {path}{args} %*"
 
     for arg in args:
+        arg = wrap_path(arg)
         content_args += " {arg}".format(arg=arg)
 
     content = content_header + content_command_template.format(path=path, args=content_args)
