@@ -4,6 +4,10 @@ Dynamic alias creator for system Windows.
 - execute program in fork, or in current command line
 - custom static invoke arguments
 
+##Alternatives:
+-DOSKEY: This doesn't work outside command line
+-Shortcuts (*.lnk): doesn't work for CMD 
+
 ##Requirements:
 - python
 - folder with script in system PATH
