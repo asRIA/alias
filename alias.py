@@ -107,7 +107,7 @@ def handle_add(options):
     content_header = "@echo off\n"
     content_args = ""
     if fork_mode:
-        content_command_template = "start "" {path}{args} %*"
+        content_command_template = "start \"\" {path}{args} %*"
     else:
         content_command_template = "call {path}{args} %*"
 
