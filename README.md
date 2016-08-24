@@ -10,7 +10,7 @@ Dynamic alias creator for system Windows.
 
 ##Requirements:
 - python
-- folder with script in system PATH
+- folder with script in system PATH (can be auto-installed)
 
 ##EXAMPLES:
 ####1) Register this script as new alias with name 'alias':
@@ -34,4 +34,5 @@ n text.txt
 Please note that **``--fork``** is important in this case.
 It will allow to invoke notepad and do not block console.
 In most cases this is useful for GUI applications.
+
 
